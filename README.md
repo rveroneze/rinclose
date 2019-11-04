@@ -1,4 +1,4 @@
-# RIn-close
+# RIn-Close
 
 Enumerative algorithms for biclustering.
 
