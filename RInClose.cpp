@@ -16,7 +16,7 @@ bool readConfigFile();
 
 int main(int argc, char* argv[])
 {
-	if (argc < 7 || argc == 8 || argc > 9)
+	if (argc < 7 || argc == 8 || argc == 9 || argc > 10)
 	{
 		cout << "\n!!! Wrong Arguments !!!" << endl << endl;
 		cout << "List of the arguments:" << endl;
