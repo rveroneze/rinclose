@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
 		cout << "6 - Output filename for the list of biclusters;" << endl;
 		cout << "7 - Class labels' filename (optional);" << endl;
 		cout << "8 - Confidence [0,1] (when using class labels);" << endl;
+		cout << "9 - Ignore biclusters with label x = ? (when using class labels);" << endl;
 		exit(1);
 	}
 
@@ -55,6 +56,7 @@ int main(int argc, char* argv[])
 	{
 		cout << "Class labels' filename: " << argv[7] << endl;
 		cout << "Confidence: " << argv[8] << endl;
+		cout << "Ignore biclusters with label x = "  << argv[9] << endl;
 	}
 
 	dataset_t matrix; // pointer to the dataset
@@ -91,8 +93,9 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 		printf("Class labels loaded\n\n");
-
+		
 		g_minConf = atof(argv[8]);
+		g_ignoreLabel = atoi(argv[9]);
 	}
 
 	float tempo;

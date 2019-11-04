@@ -109,21 +109,25 @@ void closePrintFile()
 
 double getMinConf(row_t *A, row_t size)
 {
-// Determina a confianca do bicluster considerando a classe que ele mais representa
+// Compute the confidence of a bicluster
 
 	unsigned int *contClass = new unsigned int[g_maxLabel];
-	for (unsigned short i = 0; i < g_maxLabel; ++i) contClass[i] = 0; // inicializa contador
+	for (unsigned short i = 0; i < g_maxLabel; ++i) contClass[i] = 0; // initialize vector
 
-	for (row_t i = 0; i < size; ++i) ++contClass[ g_classes[A[i]] ]; // contando a representatividade de cada classe
+	for (row_t i = 0; i < size; ++i) ++contClass[ g_classes[A[i]] ]; // counting the representativeness of each class label
 	
-	unsigned int maior = 0;
+	unsigned int maior = 0, label = 0;
 	for (unsigned short i = 0; i < g_maxLabel; ++i)
 	{
-		if (contClass[i] > maior) maior = contClass[i];
+		if (contClass[i] > maior)
+		{
+			maior = contClass[i];
+			label = i;
+		}
 	}
 
 	delete [] contClass;
 
+	if (g_ignoreLabel == label) return 0;
 	return maior / (double) size;
 }
-
