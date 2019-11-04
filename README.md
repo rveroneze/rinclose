@@ -35,7 +35,7 @@ To run the program, type './RInClose' and the arguments:
 
 **Examples are availabe in the folder 'examples'. The example dataset 'dataset' illustrates the input format.**
 
-###Algorithm options:
+### Algorithm options:
 
 **cvcp**: perfect biclusters with constant values on columns;
 
