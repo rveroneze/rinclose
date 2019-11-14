@@ -33,6 +33,8 @@ To run the program, type './RInClose' and the arguments:
 
 8 - Confidence [0,1] (when using class labels);
 
+9 - Ignore biclusters with label x = ? (when using class labels);
+
 **Examples are availabe in the folder 'examples'. The example dataset 'dataset' illustrates the input format.**
 
 ### Algorithm options:
