@@ -11,12 +11,13 @@
 bool readDataset(const string &dataSetName, dataset_t &matrix, row_t &n, col_t &m);
 void printData(const dataset_t &matrix, const row_t &n, const col_t &m);
 bool readEpsilons(const string &filename, data_t *epsilons, const col_t &m);
+bool readAttrWeights(const string &filename, long *attrWeight, const col_t &m);
 bool readClassLabels(const string &fileName, const row_t &n);
 bool readConfigFile();
 
 int main(int argc, char* argv[])
 {
-	if (argc < 7 || argc == 8 || argc == 9 || argc > 10)
+	if (argc < 9 || argc == 10 || argc == 11 || argc > 12)
 	{
 		cout << "\n!!! Wrong Arguments !!!" << endl << endl;
 		cout << "List of the arguments:" << endl;
@@ -26,9 +27,11 @@ int main(int argc, char* argv[])
 		cout << "4 - minCol;" << endl;
 		cout << "5 - Epsilon or filename for file with epsilons;" << endl;
 		cout << "6 - Output filename for the list of biclusters;" << endl;
-		cout << "7 - Class labels' filename (optional);" << endl;
-		cout << "8 - Confidence [0,1] (when using class labels);" << endl;
-		cout << "9 - Ignore biclusters with label x = ? (when using class labels);" << endl;
+		cout << "7 - minAttrWeight;" << endl;
+		cout << "8 - Filename for the list of attribute weights;" << endl;
+		cout << "9 - Class labels' filename (optional);" << endl;
+		cout << "10 - Confidence [0,1] (when using class labels);" << endl;
+		cout << "11 - Ignore biclusters with label x = ? (when using class labels);" << endl;
 		exit(1);
 	}
 
@@ -42,7 +45,8 @@ int main(int argc, char* argv[])
 
 	row_t minRow = atoi(argv[3]);
 	col_t minCol = atoi(argv[4]);
-	data_t epsilon, *epsilons = NULL; 
+	data_t epsilon, *epsilons = NULL;
+	long minAttrWeight = atol(argv[7]);
 
 	// List the user parameters
 	cout << "\nArguments: " << endl;
@@ -52,11 +56,13 @@ int main(int argc, char* argv[])
 	cout << "minCol: " << minCol << endl;
 	cout << "Epsilon: " << argv[5] << endl;
 	cout << "File with the list of bicluster: " << argv[6] << endl;
-	if (argc > 7)
+	cout << "minAttrWeight: " << minAttrWeight << endl;
+	cout << "File with the list of attribute weights: " << argv[8] << endl;
+	if (argc > 9)
 	{
-		cout << "Class labels' filename: " << argv[7] << endl;
-		cout << "Confidence: " << argv[8] << endl;
-		cout << "Ignore biclusters with label x = "  << argv[9] << endl;
+		cout << "Class labels' filename: " << argv[9] << endl;
+		cout << "Confidence: " << argv[10] << endl;
+		cout << "Ignore biclusters with label x = "  << argv[11] << endl;
 	}
 
 	dataset_t matrix; // pointer to the dataset
@@ -83,32 +89,40 @@ int main(int argc, char* argv[])
 		cout << "File with the epsilons loaded\n\n";
 	}
 
-	if (argc > 7)
+	long *attrWeights = new long[m];
+	if (!readAttrWeights(argv[8], attrWeights, m))
+	{
+		cout << "File with the list of attribute weights was not loaded!";
+		exit(1);
+	}
+	cout << "File with the list of attribute weights loaded\n\n";
+
+	if (argc > 9)
 	{
 		// Le as classes dos objetos
 		g_classes = new unsigned short[n];
-		if (!readClassLabels(argv[7], n))
+		if (!readClassLabels(argv[9], n))
 		{
 			cout << "\nClass labels' file was not loaded!";
 			exit(1);
 		}
 		printf("Class labels loaded\n\n");
 		
-		g_minConf = atof(argv[8]);
-		g_ignoreLabel = atoi(argv[9]);
+		g_minConf = atof(argv[10]);
+		g_ignoreLabel = atoi(argv[11]);
 	}
 
 	float tempo;
 	openPrintFile(argv[6]);
 	cout << "\nRunning..." << endl;
 	if (strcmp(argv[2], "cvcp") == 0)
-		tempo = runRInCloseCVCP(matrix, n, m, minRow, minCol);
+		tempo = runRInCloseCVCP(matrix, n, m, minRow, minCol, minAttrWeight, attrWeights);
 	else if (strcmp(argv[2], "chvp") == 0)
 		tempo = runRInCloseCHVP(matrix, n, m, minRow, minCol);
 	else if (strcmp(argv[2], "cvc") == 0)
 		tempo = runRInCloseCVC(matrix, n, m, minRow, minCol, epsilon, false);
 	else if (strcmp(argv[2], "cvcma") == 0)
-		tempo = runRInCloseCVCve(matrix, n, m, minRow, minCol, epsilons);
+		tempo = runRInCloseCVCve(matrix, n, m, minRow, minCol, epsilons, minAttrWeight, attrWeights);
 	else if (strcmp(argv[2], "chv") == 0)
 		tempo = runRInCloseCHV(matrix, n, m, minRow, minCol, epsilon);
 	else if (strcmp(argv[2], "chvpm") == 0)
@@ -197,6 +211,22 @@ bool readEpsilons(const string &filename, data_t *epsilons, const col_t &m)
 	for (col_t j = 0; j < m; ++j)
 		myStream >> epsilons[j];
 
+	myStream.close();
+	return true;
+}
+
+bool readAttrWeights(const string &filename, long *attrWeights, const col_t &m)
+{
+	ifstream myStream;
+	myStream.open(filename, ifstream::in);
+
+	if (!myStream.is_open())
+		return false;
+	
+	//Storing the data
+	for (col_t j = 0; j < m; ++j)
+		myStream >> attrWeights[j];
+	
 	myStream.close();
 	return true;
 }

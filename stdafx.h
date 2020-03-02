@@ -40,6 +40,7 @@ struct bic_t {
 	col_t sizeB;
 	row_t sizeRM;
 	col_t col;
+	long AttrWeight;
 };
 
 typedef bic_t *pbic_t;

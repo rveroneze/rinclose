@@ -1,13 +1,18 @@
 #include "stdafx.h"
 #include "rinclosecvcp.h"
 
-float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol)
+float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol, const long &minAttrWeight, const long *attrWeights)
 {
 	// Allocating memory for the global variable
 	g_RWp = new pair<data_t, row_t>[n];
 
 
 	clock_t clocks = clock();
+
+	// Creating a vector with the accumulated weights of the attributes
+	long *attrWeightsAcc = new long[m];
+	attrWeightsAcc[m-1] = attrWeights[m-1];
+	for (long j = m-2; j>=0; --j)  attrWeightsAcc[j] = attrWeightsAcc[j+1] + attrWeights[j];
 
 	// Creating the supremum
 	pbic_t bic = new bic_t;
@@ -24,21 +29,22 @@ float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const 
 	}
 	bic->sizeB = 0;
 	bic->col = 0;
+	bic->AttrWeight = 0;
 
-	RInCloseCVCP(D, m, minRow, minCol, bic); // call RIn-Close
+	RInCloseCVCP(D, m, minRow, minCol, bic, minAttrWeight, attrWeights, attrWeightsAcc); // call RIn-Close
 
 	clocks = clock() - clocks;
 	return ((float)clocks) / CLOCKS_PER_SEC;
 }
 
-void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const col_t &minCol, const pbic_t &bic)
+void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const col_t &minCol, const pbic_t &bic, const long &minAttrWeight, const long *attrWeights, const long *attrWeightsAcc)
 {
 	queue<pbic_t> children;
 
 	// Iterating across the attributes
 	for (col_t j = bic->col; j < m; ++j)
 	{
-		if (m - j + bic->sizeB < minCol)
+		if (m - j + bic->sizeB < minCol || bic->AttrWeight + attrWeightsAcc[j] < minAttrWeight)
 			break;
 
 		if (!bic->B[j] && !bic->PN[j])
@@ -61,6 +67,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 			{
 				bic->B[j] = true; //then, add the attribute j to B[r] (incremental closure)
 				++bic->sizeB;
+				bic->AttrWeight = bic->AttrWeight + attrWeights[j];
 			}
 			else if (bic->sizeA > minRow && qnmv >= minRow) // otherwise, bic r can not generate descendants with at least minRow rows
 			{
@@ -105,7 +112,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 	if (r_usage.ru_maxrss > g_ram) g_ram = r_usage.ru_maxrss;
 
 	// imprime o bicluster e elimina suas linhas da memoria
-	if (bic->sizeB >= minCol)
+	if (bic->sizeB >= minCol && bic->AttrWeight >= minAttrWeight)
 		printBic(bic, m);
 	delete[] bic->A;
 
@@ -122,7 +129,8 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 		}
 		child->B[child->col - 1] = true;
 		child->sizeB = bic->sizeB + 1;
-		RInCloseCVCP(D, m, minRow, minCol, child);
+		child->AttrWeight = bic->AttrWeight + attrWeights[child->col - 1];
+		RInCloseCVCP(D, m, minRow, minCol, child, minAttrWeight, attrWeights, attrWeightsAcc);
 		children.pop();
 	}
 	delete[] bic->B;

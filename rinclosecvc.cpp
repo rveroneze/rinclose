@@ -333,7 +333,7 @@ void RCVC_computeRM(const row_t &minRow, const data_t &epsilon, const pbic_t &bi
 // RInClose_CVC que aceita um epsilon por coluna:
 // ----------------------------------------------
 
-float runRInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol, const data_t *epsilons)
+float runRInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol, const data_t *epsilons, const long &minAttrWeight, const long *attrWeights)
 {
 	// Allocating memory for the global variables
 	g_RWp = new pair<data_t, row_t>[n];
@@ -348,6 +348,11 @@ float runRInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const
 
 
 	clock_t clocks = clock();
+
+	// Creating a vector with the accumulated weights of the attributes
+	long *attrWeightsAcc = new long[m];
+	attrWeightsAcc[m-1] = attrWeights[m-1];
+	for (long j = m-2; j>=0; --j)  attrWeightsAcc[j] = attrWeightsAcc[j+1] + attrWeights[j];
 
 	// Creating the supremum
 	pbic_t bic = new bic_t;
@@ -367,21 +372,22 @@ float runRInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const
 	bic->sizeB = 0;
 	bic->sizeRM = 0;
 	bic->col = 0;
+	bic->AttrWeight = 0;
 
-	RInCloseCVCve(D, n, m, minRow, minCol, epsilons, bic); // call RIn-Close
+	RInCloseCVCve(D, n, m, minRow, minCol, epsilons, bic, minAttrWeight, attrWeights, attrWeightsAcc); // call RIn-Close
 
 	clocks = clock() - clocks;
 	return ((float)clocks) / CLOCKS_PER_SEC;
 }
 
-void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol, const data_t *epsilons, const pbic_t &bic)
+void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol, const data_t *epsilons, const pbic_t &bic, const long &minAttrWeight, const long *attrWeights, const long *attrWeightsAcc)
 {
 	queue<pbic_t> children;
 
 	// Iterating across the attributes
 	for (col_t j = bic->col; j < m; ++j)
 	{
-		if (m - j + bic->sizeB < minCol)
+		if (m - j + bic->sizeB < minCol || bic->AttrWeight + attrWeightsAcc[j] < minAttrWeight)
 			break;
 
 		if (!bic->B[j] && !bic->PN[j])
@@ -404,6 +410,7 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row
 			{
 				bic->B[j] = true; // add the attribute j to B[r] (incremental closure)
 				++bic->sizeB;
+				bic->AttrWeight = bic->AttrWeight + attrWeights[j];
 			}
 			else if (bic->sizeA > minRow && qnmv >= minRow) // otherwise, bic r can not generate descendants with at least minRow rows
 			{
@@ -448,7 +455,7 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row
 	}
 
 	// imprime o bicluster e elimina suas linhas da memoria
-	if (bic->sizeB >= minCol)
+	if (bic->sizeB >= minCol && bic->AttrWeight >= minAttrWeight)
 		printBic(bic, m);
 	delete[] bic->A;
 
@@ -465,7 +472,8 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const row
 		}
 		child->B[child->col - 1] = true;
 		child->sizeB = bic->sizeB + 1;
-		RInCloseCVCve(D, n, m, minRow, minCol, epsilons, child);
+		child->AttrWeight = bic->AttrWeight + attrWeights[child->col - 1];
+		RInCloseCVCve(D, n, m, minRow, minCol, epsilons, child, minAttrWeight, attrWeights, attrWeightsAcc);
 		children.pop();
 	}
 	delete[] bic->B;
