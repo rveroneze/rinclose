@@ -41,7 +41,7 @@ void printBic(const pbic_t &bic, const col_t m)
 			if (bic->B[i])
 				g_filebics << i << ",";
 		}
-		g_filebics << "],[" << bic->col - 1 << "]])" << endl;
+		g_filebics << "]," << bic->col - 1 << "])" << endl;
 	}
 }
 
