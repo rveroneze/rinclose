@@ -8,6 +8,7 @@ Related works:
 - Veroneze, R., & Von Zuben, F. J. (2017). Efficient mining of maximal biclusters in mixed-attribute datasets. arXiv preprint arXiv:1710.03289.
 - Veroneze, R., Banerjee, A., & Von Zuben, F. J. (2017). Enumerating all maximal biclusters in numerical datasets. Information Sciences, 379, 288-309.
 - Veroneze, R. (2016). Enumerating all maximal biclusters in numerical datasets= Enumerando todos os biclusters maximais em conjuntos de dados numéricos. PhD Thesis.
+- Veroneze, R., Banerjee, A., & Von Zuben, F. J. (2014). Enumerating all maximal biclusters in numerical datasets. arXiv preprint arXiv:1403.3562.
 
 
 
@@ -50,6 +51,6 @@ To run the program, type './RInClose' and the arguments:
 
 **chvpm**: perfect biclusters with coherent values - multiplicative model.
 
-**chv**: biclusters with coherent values - multiplicative model.
+**chv**: biclusters with coherent values - additive model.
 
 **opsm**: order-preserving submatrices
