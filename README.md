@@ -51,7 +51,7 @@ To run the program, type './RInClose' and the arguments:
 
 **chvpm**: perfect biclusters with coherent values - multiplicative model (scaling biclusters).
 
-**chv**: biclusters with coherent values - additive model (shifting biclusters).
+**chv**: biclusters with coherent values - additive model (shifting biclusters) / coherent sign changes on rows and columns.
 
 **opsm**: order-preserving submatrices
 
