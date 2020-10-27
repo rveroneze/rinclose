@@ -47,10 +47,12 @@ To run the program, type './RInClose' and the arguments:
 
 **cvcma**: biclusters with constant (similar) values on columns - it can use different values of epsilon accross the columns;
 
-**chvp**: perfect biclusters with coherent values - additive model.
+**chvp**: perfect biclusters with coherent values - additive model (shifting biclusters).
 
-**chvpm**: perfect biclusters with coherent values - multiplicative model.
+**chvpm**: perfect biclusters with coherent values - multiplicative model (scaling biclusters).
 
-**chv**: biclusters with coherent values - additive model.
+**chv**: biclusters with coherent values - additive model (shifting biclusters).
 
 **opsm**: order-preserving submatrices
+
+Note: The problems of mining shifting and scaling biclusters are equivalent. Using an algorithm to mine shifting (scaling) biclusters, we can mine scaling (shifting) biclusters by previously taking the logarithm (exponential) of all entries of the data matrix.
