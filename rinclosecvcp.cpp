@@ -1,7 +1,6 @@
-#include "stdafx.h"
 #include "rinclosecvcp.h"
 
-float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol)
+float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const col_t &minCol)
 {
 	// Allocating memory for the global variable
 	g_RWp = new pair<data_t, row_t>[n];
@@ -24,16 +23,20 @@ float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const 
 	}
 	bic->sizeB = 0;
 	bic->col = 0;
+	bic->biggerSup = g_biggerMinsup;
 
-	RInCloseCVCP(D, m, minRow, minCol, bic); // call RIn-Close
+	RInCloseCVCP(D, m, minCol, bic); // call RIn-Close
 
 	clocks = clock() - clocks;
 	return ((float)clocks) / CLOCKS_PER_SEC;
 }
 
-void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const col_t &minCol, const pbic_t &bic)
+void RInCloseCVCP(const dataset_t &D, const col_t &m, const col_t &minCol, const pbic_t &bic)
 {
 	queue<pbic_t> children;
+	row_t *support =  new row_t[g_maxLabel];
+	unsigned short label;
+	row_t biggerSup;
 
 	// Iterating across the attributes
 	for (col_t j = bic->col; j < m; ++j)
@@ -62,17 +65,35 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 				bic->B[j] = true; //then, add the attribute j to B[r] (incremental closure)
 				++bic->sizeB;
 			}
-			else if (bic->sizeA > minRow && qnmv >= minRow) // otherwise, bic r can not generate descendants with at least minRow rows
+			else if (bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
 			{
 				bool pskipJ = true, naux1 = true, naux2 = false; // can descendants skip column j ?
 				col_t fcol;
+
 				sort(g_RWp, g_RWp + qnmv);
+				
 				row_t p1 = 0, p2 = 0;
-				while (p1 <= qnmv - minRow)
+				while (p1 <= qnmv - g_smallerMinsup)
 				{
+					biggerSup = 0;
+					for (unsigned short i = 0; i < g_maxLabel; ++i) support[i] = 0; // initialize vector
+					label = g_classes[g_RWp[p1].second];
+					support[label] = 1;
+					if (support[label] >= g_minsups[label])
+					{
+						if (support[label] > biggerSup) biggerSup = support[label];
+					}
 					while (p2 < qnmv - 1 && g_RWp[p2 + 1].first == g_RWp[p1].first)
+					{
 						++p2;
-					if (p2 - p1 + 1 >= minRow)
+						label = g_classes[g_RWp[p2].second];
+						support[label]++;
+						if (support[label] >= g_minsups[label])
+						{
+							if (support[label] > biggerSup) biggerSup = support[label];
+						}
+					}
+					if (biggerSup > 0)
 					{
 						pskipJ = false;
 						bool iscan = RCVCP_IsCanonical(D, j, p1, p2, bic, fcol);
@@ -84,6 +105,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 							child->A = new row_t[child->sizeA];
 							for (row_t i2 = p1; i2 <= p2; ++i2)
 								child->A[i2-p1] = g_RWp[i2].second;
+							child->biggerSup = biggerSup;
 							child->col = j + 1;
 							children.push(child);
 						}
@@ -95,7 +117,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 				}
 				bic->PN[j] = pskipJ || (naux1 && naux2);
 			}
-			else if (qnmv < minRow) bic->PN[j] = true; // descendants can skip column j
+			else if (qnmv < g_smallerMinsup) bic->PN[j] = true; // descendants can skip column j
 		}
 	}
 
@@ -122,7 +144,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const row_t &minRow, const
 		}
 		child->B[child->col - 1] = true;
 		child->sizeB = bic->sizeB + 1;
-		RInCloseCVCP(D, m, minRow, minCol, child);
+		RInCloseCVCP(D, m, minCol, child);
 		children.pop();
 	}
 	delete[] bic->B;

@@ -40,6 +40,7 @@ struct bic_t {
 	col_t sizeB;
 	row_t sizeRM;
 	col_t col;
+	row_t biggerSup;
 };
 
 typedef bic_t *pbic_t;
