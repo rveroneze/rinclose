@@ -19,6 +19,7 @@
 #include <queue>
 #include <float.h>
 #include <unordered_map>  // usado para o arquivo config.txt
+#include <set> //usado para o tipo ctvp
 
 #include <sys/resource.h> // for the experiments about memory RAM usage
 
@@ -40,6 +41,7 @@ struct bic_t {
 	col_t sizeB;
 	row_t sizeRM;
 	col_t col;
+	data_t value; // for the ctvp type
 };
 
 typedef bic_t *pbic_t;

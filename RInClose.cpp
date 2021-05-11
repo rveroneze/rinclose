@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "globalsv.h"
+#include "rinclosectvp.h"
 #include "rinclosecvcp.h"
 #include "rinclosechvp.h"
 #include "rinclosecvc.h"
@@ -21,7 +22,7 @@ int main(int argc, char* argv[])
 		cout << "\n!!! Wrong Arguments !!!" << endl << endl;
 		cout << "List of the arguments:" << endl;
 		cout << "1 - Dataset's filename;" << endl;
-		cout << "2 - Algorithm (options: cvcp, cvc, cvcma, chvp, chvpm, chv, opsm);" << endl;
+		cout << "2 - Algorithm (options: ctvp, cvcp, cvc, cvcma, chvp, chvpm, chv, opsm);" << endl;
 		cout << "3 - minRow;" << endl;
 		cout << "4 - minCol;" << endl;
 		cout << "5 - Epsilon or filename for file with epsilons;" << endl;
@@ -101,7 +102,9 @@ int main(int argc, char* argv[])
 	float tempo;
 	openPrintFile(argv[6]);
 	cout << "\nRunning..." << endl;
-	if (strcmp(argv[2], "cvcp") == 0)
+	if (strcmp(argv[2], "ctvp") == 0)
+		tempo = runRInCloseCTVP(matrix, n, m, minRow, minCol);
+	else if (strcmp(argv[2], "cvcp") == 0)
 		tempo = runRInCloseCVCP(matrix, n, m, minRow, minCol);
 	else if (strcmp(argv[2], "chvp") == 0)
 		tempo = runRInCloseCHVP(matrix, n, m, minRow, minCol);

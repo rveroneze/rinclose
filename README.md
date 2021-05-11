@@ -12,6 +12,8 @@ Related works:
 - Veroneze, R., Banerjee, A., & Von Zuben, F. J. (2014). Enumerating all maximal biclusters in numerical datasets. arXiv preprint arXiv:1403.3562.
 
 
+## Branch for testing a new feature
+
 
 ## Compiling
 To compile the program, run the file  './MakeFile.sh' in the directory containing the source files.
@@ -22,7 +24,7 @@ To run the program, type './RInClose' and the arguments:
 
 1 - Dataset's filename;
 
-2 - Algorithm (options: cvcp, cvc, cvcma, chvp, chvpm, chv, opsm);
+2 - Algorithm (options: ctvp, cvcp, cvc, cvcma, chvp, chvpm, chv, opsm);
 
 3 - Minimum number of rows (minRow);
 
@@ -41,6 +43,8 @@ To run the program, type './RInClose' and the arguments:
 **Examples are availabe in the folder 'examples'. The example dataset 'dataset' illustrates the input format.**
 
 ### Algorithm options:
+
+**ctvp**: perfect biclusters with constant values;
 
 **cvcp**: perfect biclusters with constant values on columns;
 

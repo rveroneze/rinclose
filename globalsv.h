@@ -19,7 +19,7 @@ extern queue<clique_t> g_cliques;
 
 // ----- Variables for the search of CVC biclusters in OPSM -----
 extern row_t *g_RW[2];
-// Obs:g_RW[0] is also used RIn-Close_CVC
+// Obs:g_RW[0] is also used RIn-Close_CVC and CTVP
 // --------------------------------------------------------------
 
 // ----- Variables for the search using class labels -----
