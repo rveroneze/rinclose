@@ -36,7 +36,6 @@ float runRInCloseCTVP(const dataset_t &D, const row_t &n, const col_t &m, const 
 		bic->sizeB = 0;
 		bic->col = 0;
 		bic->value = *it;
-		cout << bic->value << " ";
 
 		RInCloseCTVP(D, m, minRow, minCol, bic); // call RIn-Close	
 	}
