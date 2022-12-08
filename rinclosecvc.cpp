@@ -84,7 +84,7 @@ float runRInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const
 
 void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col_t &minCol, const data_t *epsilons, const pbic_t &bic)
 {
-	queue<pbic_t> children;
+	stack<pbic_t> children;
 	row_t *support =  new row_t[g_maxLabel];
 	unsigned short label;
 	row_t biggerSup;
@@ -177,7 +177,7 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col
 	// fechando os filhos
 	while (!children.empty())
 	{
-		pbic_t child = children.front();
+		pbic_t child = children.top();
 		child->B = new bool[m];
 		child->PN = new bool[m];
 		for (col_t j = 0; j < m; ++j)

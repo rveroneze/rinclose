@@ -16,7 +16,8 @@
 #include <time.h> 
 #include <algorithm>
 #include <math.h>
-#include <queue>
+//#include <queue>
+#include <stack> // replacing queue for stack to store 'children' -> linear usage of memory regarding m
 #include <float.h>
 #include <unordered_map>  // usado para o arquivo config.txt
 
