@@ -1,7 +1,7 @@
 #include "globalsv.h"
 
 unsigned long MVS = 999999; // value that represents a Missing Value
-unsigned short g_output = 1; // 1 - matlab; 2 - python
+unsigned short g_output = 2; // 1 - matlab; 2 - python
 
 // ----- Variables for the search of the biclusters -----
 unsigned g_cont = 0; // number of biclusters in the output
@@ -19,7 +19,7 @@ unsigned short *g_classes; // vector to store the class label of each object
 unsigned short g_maxLabel; // maximum label
 double g_minConf = 0; // confidence threshold
 row_t *g_minsups; // vector to store the minsup of each class label
-row_t g_smallerMinsup, g_biggerMinsup; // smaller minsup in *g_minsups
+row_t g_smallerMinsup, g_biggerMinsup; // smaller and bigger minsup in *g_minsups
 // --------------------------------------------------------------
 
 

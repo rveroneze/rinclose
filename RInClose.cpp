@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	}
 
 	col_t minCol = atoi(argv[4]);
-	data_t epsilon, *epsilons = NULL;
+	data_t *epsilons = NULL;
 	g_minConf = atof(argv[8]);
 
 	// List the user parameters
@@ -62,9 +62,7 @@ int main(int argc, char* argv[])
 	printf("\nDataset loaded: %dx%d\n\n", n, m);
 	//printData(matrix, n, m);
 
-	if (strcmp(argv[2], "cvcma") != 0)
-		epsilon = atof(argv[5]);
-	else
+	if (strcmp(argv[2], "cvcma") == 0)
 	{
 		epsilons = new data_t[m];
 		if (!readEpsilons(argv[5], epsilons, m))
@@ -117,13 +115,20 @@ int main(int argc, char* argv[])
 	cout << "Number of biclusters = " << g_cont << endl;
 	cout << "Memory RAM usage = " << g_ram << endl;
 
-	// Guarda qtd de bics e runtime num txt
-	// Tambem guarda ram maxima usada (em kbytes) para fins experimentais
+	// Print some information in a txt file
 	ofstream myfile;
 	myfile.open("summary.txt", ofstream::app);
-	myfile << g_cont << '\t';
-	myfile << tempo << '\t';
-	myfile << g_ram << endl;
+	myfile << g_cont << '\t'; // number of patterns
+	myfile << tempo << '\t'; // runtime
+	myfile << g_ram << '\t'; // RAM memory (kbytes)
+	myfile << argv[1] << '\t'; // dataset filename
+	myfile << argv[2] << '\t'; // RIn-Close algorithm option
+	myfile << argv[3] << '\t'; // Minimum number of rows
+	myfile << minCol << '\t'; // Minimum number of columns
+	myfile << argv[5] << '\t'; // Epsilon
+	myfile << argv[6] << '\t'; // File with the list of bicluster
+	myfile << argv[7] << '\t'; // Class labels' filename
+	myfile << g_minConf << endl; // Confidence
 	myfile.close();
 
 	//system("pause");
@@ -275,7 +280,6 @@ bool readMinSupsFile(const string &fileName, const row_t &n)
 
 	if (!myStream.is_open())
 		return false;
-	
 
 	//cout << "minsup for each class label: " << endl;
 	myStream.seekg(0);
