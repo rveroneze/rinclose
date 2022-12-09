@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <math.h>
 #include <queue>
+#include <stack>
 #include <float.h>
 #include <unordered_map>  // usado para o arquivo config.txt
 #include <set> //usado para o tipo ctvp
