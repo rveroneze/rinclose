@@ -33,7 +33,7 @@ float runRInCloseCVCP_OP(const datasetOP_t &D, const row_t &n, const col_t &m, c
 
 void RInCloseCVCP_OP(const datasetOP_t &D, const row_t &n, const col_t &m, const row_t &minRow, const col_t &minCol, const pbic_t &bic)
 {
-	queue<pbic_t> children;
+	stack<pbic_t> children;
 
 	// Iterating across the attributes
 	for (col_t j = bic->col; j < m; ++j)
@@ -107,7 +107,7 @@ void RInCloseCVCP_OP(const datasetOP_t &D, const row_t &n, const col_t &m, const
 	// fechando os filhos
 	while (!children.empty())
 	{
-		pbic_t child = children.front();
+		pbic_t child = children.top();
 		child->B = new bool[m];
 		child->PN = new bool[m];
 		for (col_t j = 0; j < m; ++j)
