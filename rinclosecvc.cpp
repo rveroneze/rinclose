@@ -116,8 +116,8 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col
 				bic->B[j] = true; // add the attribute j to B[r] (incremental closure)
 				++bic->sizeB;
 			}
-			else if (bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
-			{
+			else if (bic->biggerSup != bic->sizeA && bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
+			{//bic->biggerSup==bic->sizeA means conf=100%. So, I am cutting the branch when I find a bic with conf=100%.
 				bool pskipJ = true, naux1 = true, naux2 = false; // can descendants skip column j ?
 				col_t fcol;
 				sort(g_RWp, g_RWp + qnmv);
