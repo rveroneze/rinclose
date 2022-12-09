@@ -2,7 +2,7 @@
 #include "globalsv.h"
 
 unsigned long MVS = 999999; // value that represents a Missing Value
-unsigned short g_output = 1; // 1 - matlab; 2 - python
+unsigned short g_output = 2; // 1 - matlab; 2 - python
 
 // ----- Variables for the search of the biclusters -----
 unsigned g_cont = 0; // number of biclusters in the output
