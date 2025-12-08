@@ -3,6 +3,7 @@
 #include "rinclosecvcp.h"
 #include "rinclosecvc.h"
 #include "string.h"
+#include <unordered_map>
 
 bool readDataset(const string &dataSetName, dataset_t &matrix, row_t &n, col_t &m);
 void printData(const dataset_t &matrix, const row_t &n, const col_t &m);
@@ -10,10 +11,11 @@ bool readEpsilons(const string &filename, data_t *epsilons, const col_t &m);
 bool readClassLabels(const string &fileName, const row_t &n);
 bool readConfigFile();
 bool readMinSupsFile(const string &fileName, const row_t &n);
+bool readMinConfsFile(const string &fileName);
 
 int main(int argc, char* argv[])
 {
-	if (argc != 9)
+	if (argc != 10)
 	{
 		cout << "\n!!! Wrong Arguments !!!" << endl << endl;
 		cout << "List of the arguments:" << endl;
@@ -24,7 +26,8 @@ int main(int argc, char* argv[])
 		cout << "5 - Epsilon or name of the file with the epsilon values;" << endl;
 		cout << "6 - Output filename for the list of biclusters;" << endl;
 		cout << "7 - Class labels' filename;" << endl;
-		cout << "8 - Minimum confidence [0,1];" << endl;
+		cout << "8 - Name of the file with the minconf values for each class label;" << endl;
+		cout << "9 - Continue the specialization of a rule with 100\% confidence? (1 - yes)" << endl;
 		exit(1);
 	}
 
@@ -38,7 +41,7 @@ int main(int argc, char* argv[])
 
 	col_t minCol = atoi(argv[4]);
 	data_t *epsilons = NULL;
-	g_minConf = atof(argv[8]);
+	g_continue_specialization = atoi(argv[9]) == 1;
 
 	// List the user parameters
 	cout << "\nArguments: " << endl;
@@ -49,7 +52,8 @@ int main(int argc, char* argv[])
 	cout << "Epsilon: " << argv[5] << endl;
 	cout << "File with the list of bicluster: " << argv[6] << endl;
 	cout << "Class labels' filename: " << argv[7] << endl;
-	cout << "Confidence: " << g_minConf << endl;
+	cout << "Confidence: " << argv[8] << endl;
+	cout << "Continue the specialization of a rule with 100\% confidence? " << g_continue_specialization << endl;
 
 	dataset_t matrix; // pointer to the dataset
 	row_t n; // number of dataset's rows
@@ -90,6 +94,13 @@ int main(int argc, char* argv[])
 	}
 	printf("minsups loaded\n\n");
 
+	// Read the minsup of each class label
+	if (!readMinConfsFile(argv[8]))
+	{
+		cout << "\nminconfs' file was not loaded!";
+		exit(1);
+	}
+	printf("minconfs loaded\n\n");
 
 	float tempo;
 	openPrintFile(argv[6]);
@@ -128,7 +139,8 @@ int main(int argc, char* argv[])
 	myfile << argv[5] << '\t'; // Epsilon
 	myfile << argv[6] << '\t'; // File with the list of bicluster
 	myfile << argv[7] << '\t'; // Class labels' filename
-	myfile << g_minConf << endl; // Confidence
+	myfile << argv[8] << '\t'; // Confidence
+	myfile << g_continue_specialization << endl;
 	myfile.close();
 
 	//system("pause");
@@ -204,10 +216,11 @@ bool readEpsilons(const string &filename, data_t *epsilons, const col_t &m)
 
 bool readClassLabels(const string &fileName, const row_t &n)
 {
-	// Read tha class label of each object, and
+	// Read the class label of each object, and
 	// set g_maxLabel
 
 	g_maxLabel = 0;
+	std::unordered_map<unsigned short, row_t> dict;
 
 	ifstream myStream;
 	myStream.open(fileName, ifstream::in);
@@ -220,11 +233,22 @@ bool readClassLabels(const string &fileName, const row_t &n)
 	for (row_t i = 0; i < n; ++i)
 	{
 		myStream >> g_classes[i];
+		++dict[g_classes[i]];
 		if (g_classes[i] > g_maxLabel) g_maxLabel = g_classes[i];
 	}
 
 	myStream.close();
 	++g_maxLabel;
+
+	g_nsamples_class_majoritaty = 0;
+	for (const auto &p : dict)
+	{
+		if (p.second > g_nsamples_class_majoritaty) {
+			g_nsamples_class_majoritaty = p.second;
+			g_class_majoritaty = p.first;
+		}
+	}
+	cout << "Label with more samples: " << g_class_majoritaty << " - n. samples = " << g_nsamples_class_majoritaty << endl;
 
 	return true;
 }
@@ -296,6 +320,31 @@ bool readMinSupsFile(const string &fileName, const row_t &n)
 
 	//cout << "g_smallerMinsup = " << g_smallerMinsup << endl;
 	//cout << "g_biggerMinsup = " << g_biggerMinsup << endl;
+
+	return true;
+}
+
+// Read the file with the minconf of each class label
+bool readMinConfsFile(const string &fileName)
+{
+	g_minconfs = new double[g_maxLabel];
+	unsigned short label;
+
+	ifstream myStream;
+	myStream.open(fileName, ifstream::in);
+
+	if (!myStream.is_open())
+		return false;
+	
+	cout << "minconf for each class label: " << endl;
+	myStream.seekg(0);
+	while (myStream.good())
+	{
+		myStream >> label;
+		myStream >> g_minconfs[label];
+		cout << "Label " << label << ": " << g_minconfs[label] << endl;
+	}
+	myStream.close();
 
 	return true;
 }

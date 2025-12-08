@@ -12,7 +12,7 @@ void openPrintFile(const string &filename)
 
 void printBic(const pbic_t &bic, const col_t m)
 {
-	if (g_minConf > 0 && bic->biggerSup/(double)bic->sizeA < g_minConf)
+	if (bic->biggerSup/(double)bic->sizeA < g_minconfs[bic->label])
 		return;
 	
 	++g_cont;

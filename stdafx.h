@@ -42,6 +42,7 @@ struct bic_t {
 	row_t sizeRM;
 	col_t col;
 	row_t biggerSup;
+	unsigned short label;
 };
 
 typedef bic_t *pbic_t;

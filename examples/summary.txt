@@ -1,2 +1,2 @@
-10	0.000195	2520
-26	0.001481	0
+15	3.2e-05	3760	dataset	cvcp	minsups	1	0	bics1.m	labels	minconfs	0
+144	0.000272	0	dataset	cvcma	minsups	1	epsilons	bics2.m	labels	minconfs	0

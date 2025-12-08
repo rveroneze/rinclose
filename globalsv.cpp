@@ -2,6 +2,7 @@
 
 unsigned long MVS = 999999; // value that represents a Missing Value
 unsigned short g_output = 2; // 1 - matlab; 2 - python
+bool g_continue_specialization = false; // continue the specialization of a rule with 100% confidence?
 
 // ----- Variables for the search of the biclusters -----
 unsigned g_cont = 0; // number of biclusters in the output
@@ -17,9 +18,12 @@ row_t *g_RW[2];  // vetor para guardar RW
 // ----- Variables for the search using class labels -----
 unsigned short *g_classes; // vector to store the class label of each object
 unsigned short g_maxLabel; // maximum label
-double g_minConf = 0; // confidence threshold
+//double g_minConf = 0; // confidence threshold
 row_t *g_minsups; // vector to store the minsup of each class label
 row_t g_smallerMinsup, g_biggerMinsup; // smaller and bigger minsup in *g_minsups
+double *g_minconfs; // vector to store the minconf of each class label
+unsigned short g_class_majoritaty; // classe majoritaria
+row_t g_nsamples_class_majoritaty; // numero de amostras da classe majoritaria
 // --------------------------------------------------------------
 
 

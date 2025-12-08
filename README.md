@@ -13,6 +13,17 @@ Related works:
 
 
 ## Branch for testing a new feature
+This branch contains an adaptation for mining **class association rules**.
+
+The user must specify **one minimum support** value *and* **one minimum confidence** value **per class label**.
+
+* The **minimum support** is used to prune the search space during pattern exploration.
+* The **minimum confidence** acts only as a filter when deciding which rules to output.
+
+For example, consider a dataset with two class labels, `c1` and `c2`.
+For each pattern `X`, we can derive the rules `X → c1` and `X → c2`.
+However, only the rule achieving the **highest confidence** is evaluated. It is retained and printed **only if** its confidence is greater than or equal to the corresponding class-specific minimum confidence threshold.
+
 
 ## Compiling
 To compile the program, run the file  './MakeFile.sh' in the directory containing the source files.

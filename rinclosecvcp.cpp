@@ -23,7 +23,8 @@ float runRInCloseCVCP(const dataset_t &D, const row_t &n, const col_t &m, const 
 	}
 	bic->sizeB = 0;
 	bic->col = 0;
-	bic->biggerSup = g_biggerMinsup;
+	bic->biggerSup = g_nsamples_class_majoritaty;
+	bic->label = g_class_majoritaty;
 
 	RInCloseCVCP(D, m, minCol, bic); // call RIn-Close
 
@@ -35,7 +36,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const col_t &minCol, const
 {
 	stack<pbic_t> children;
 	row_t *support =  new row_t[g_maxLabel];
-	unsigned short label;
+	unsigned short label, best_label;
 	row_t biggerSup;
 
 	// Iterating across the attributes
@@ -65,8 +66,8 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const col_t &minCol, const
 				bic->B[j] = true; //then, add the attribute j to B[r] (incremental closure)
 				++bic->sizeB;
 			}
-			else if (bic->biggerSup != bic->sizeA && bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
-			{//bic->biggerSup==bic->sizeA means conf=100%. So, I am cutting the branch when I find a bic with conf=100%.
+			else if ((g_continue_specialization || bic->biggerSup != bic->sizeA) && bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
+			{//bic->biggerSup==bic->sizeA means conf=100%. I cut the branch when I find a rule with conf=100% and g_continue_specialization is False.
 				bool pskipJ = true, naux1 = true, naux2 = false; // can descendants skip column j ?
 				col_t fcol;
 
@@ -79,9 +80,14 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const col_t &minCol, const
 					for (unsigned short i = 0; i < g_maxLabel; ++i) support[i] = 0; // initialize vector
 					label = g_classes[g_RWp[p1].second];
 					support[label] = 1;
+					best_label = label;
 					if (support[label] >= g_minsups[label])
 					{
-						if (support[label] > biggerSup) biggerSup = support[label];
+						if (support[label] > biggerSup)
+						{
+							biggerSup = support[label];
+							best_label = label;
+						}
 					}
 					while (p2 < qnmv - 1 && g_RWp[p2 + 1].first == g_RWp[p1].first)
 					{
@@ -90,7 +96,11 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const col_t &minCol, const
 						support[label]++;
 						if (support[label] >= g_minsups[label])
 						{
-							if (support[label] > biggerSup) biggerSup = support[label];
+							if (support[label] > biggerSup)
+							{
+								biggerSup = support[label];
+								best_label = label;
+							}
 						}
 					}
 					if (biggerSup > 0)
@@ -106,6 +116,7 @@ void RInCloseCVCP(const dataset_t &D, const col_t &m, const col_t &minCol, const
 							for (row_t i2 = p1; i2 <= p2; ++i2)
 								child->A[i2-p1] = g_RWp[i2].second;
 							child->biggerSup = biggerSup;
+							child->label = best_label;
 							child->col = j + 1;
 							children.push(child);
 						}

@@ -74,7 +74,8 @@ float runRInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const
 	bic->sizeB = 0;
 	bic->sizeRM = 0;
 	bic->col = 0;
-	bic->biggerSup = g_biggerMinsup;
+	bic->biggerSup = g_nsamples_class_majoritaty;
+	bic->label = g_class_majoritaty;
 
 	RInCloseCVCve(D, n, m, minCol, epsilons, bic); // call RIn-Close
 
@@ -86,7 +87,7 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col
 {
 	stack<pbic_t> children;
 	row_t *support =  new row_t[g_maxLabel];
-	unsigned short label;
+	unsigned short label, best_label;
 	row_t biggerSup;
 
 	// Iterating across the attributes
@@ -116,8 +117,8 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col
 				bic->B[j] = true; // add the attribute j to B[r] (incremental closure)
 				++bic->sizeB;
 			}
-			else if (bic->biggerSup != bic->sizeA && bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
-			{//bic->biggerSup==bic->sizeA means conf=100%. So, I am cutting the branch when I find a bic with conf=100%.
+			else if ((g_continue_specialization || bic->biggerSup != bic->sizeA) && bic->sizeA > g_smallerMinsup && qnmv >= g_smallerMinsup)
+			{//bic->biggerSup==bic->sizeA means conf=100%. I cut the branch when I find a rule with conf=100% and g_continue_specialization is False.
 				bool pskipJ = true, naux1 = true, naux2 = false; // can descendants skip column j ?
 				col_t fcol;
 				sort(g_RWp, g_RWp + qnmv);
@@ -135,7 +136,11 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col
 						support[label]++;
 						if (support[label] >= g_minsups[label])
 						{
-							if (support[label] > biggerSup) biggerSup = support[label];
+							if (support[label] > biggerSup)
+							{
+								biggerSup = support[label];
+								best_label = label;
+							}
 						}
 						g_RW[0][sRW++] = g_RWp[i2].second;
 					}
@@ -155,6 +160,7 @@ void RInCloseCVCve(const dataset_t &D, const row_t &n, const col_t &m, const col
 							for (row_t i2 = 0; i2 < sRW; ++i2) child->A[i2] = g_RW[0][i2];
 							child->sizeA = sRW;
 							child->biggerSup = biggerSup;
+							child->label = best_label;
 							child->col = j + 1;
 							RCVC_computeRM(epsilons[j], bic, child, p1, p2, qnmv);
 							children.push(child);

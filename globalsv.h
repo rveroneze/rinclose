@@ -4,6 +4,7 @@
 
 extern unsigned long MVS; // value that represents a Missing Value
 extern unsigned short g_output; // 1 - matlab; 2 - python
+extern bool g_continue_specialization; // continue the specialization of a rule with 100% confidence?
 
 // ----- Variables for the search of the biclusters -----
 extern unsigned g_cont;
@@ -19,9 +20,12 @@ extern row_t *g_RW[2];
 // ----- Variables for the search using class labels -----
 extern unsigned short *g_classes;
 extern unsigned short g_maxLabel;
-extern double g_minConf;
+//extern double g_minConf;
 extern row_t *g_minsups;
 extern row_t g_smallerMinsup, g_biggerMinsup;
+extern double *g_minconfs;
+extern unsigned short g_class_majoritaty;
+extern row_t g_nsamples_class_majoritaty;
 // --------------------------------------------------------------
 
 
