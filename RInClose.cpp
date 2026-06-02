@@ -298,6 +298,7 @@ bool readMinSupsFile(const string &fileName, const row_t &n)
 	g_biggerMinsup = 0;
 	g_minsups = new row_t[g_maxLabel];
 	unsigned short label;
+	row_t ignored;
 
 	ifstream myStream;
 	myStream.open(fileName, ifstream::in);
@@ -305,21 +306,27 @@ bool readMinSupsFile(const string &fileName, const row_t &n)
 	if (!myStream.is_open())
 		return false;
 
-	//cout << "minsup for each class label: " << endl;
+	cout << "minsup for each class label: " << endl;
 	myStream.seekg(0);
-	while (myStream.good())
+	while (myStream >> label)
 	{
-		myStream >> label;
-		myStream >> g_minsups[label];
-		//cout << "Label " << label << ": " << g_minsups[label] << endl;
-		if (g_minsups[label] < g_smallerMinsup) g_smallerMinsup = g_minsups[label];
-		if (g_minsups[label] > g_biggerMinsup) g_biggerMinsup = g_minsups[label];
+		if (label < g_maxLabel)
+		{
+			myStream >> g_minsups[label];
+			cout << "Label " << label << ": " << g_minsups[label] << endl;
+			if (g_minsups[label] < g_smallerMinsup) g_smallerMinsup = g_minsups[label];
+			if (g_minsups[label] > g_biggerMinsup) g_biggerMinsup = g_minsups[label];
+		}
+		else
+		{
+			myStream >> ignored;
+			cout << "Label " << label << " is bigger than the ones present in the class labels file! It will be ignored!" << endl;
+		}
 	}
-
 	myStream.close();
 
-	//cout << "g_smallerMinsup = " << g_smallerMinsup << endl;
-	//cout << "g_biggerMinsup = " << g_biggerMinsup << endl;
+	cout << "g_smallerMinsup = " << g_smallerMinsup << endl;
+	cout << "g_biggerMinsup = " << g_biggerMinsup << endl;
 
 	return true;
 }
@@ -329,6 +336,7 @@ bool readMinConfsFile(const string &fileName)
 {
 	g_minconfs = new double[g_maxLabel];
 	unsigned short label;
+	double ignored;
 
 	ifstream myStream;
 	myStream.open(fileName, ifstream::in);
@@ -338,11 +346,19 @@ bool readMinConfsFile(const string &fileName)
 	
 	cout << "minconf for each class label: " << endl;
 	myStream.seekg(0);
-	while (myStream.good())
+	while (myStream >> label)
 	{
-		myStream >> label;
-		myStream >> g_minconfs[label];
-		cout << "Label " << label << ": " << g_minconfs[label] << endl;
+		if (label < g_maxLabel)
+		{
+			myStream >> g_minconfs[label];
+			cout << "Label " << label << ": " << g_minconfs[label] << endl;
+		}
+		else
+		{
+			myStream >> ignored;
+			cout << "Label " << label << " is bigger than the ones present in the class labels file! It will be ignored!" << endl;
+		}
+
 	}
 	myStream.close();
 
